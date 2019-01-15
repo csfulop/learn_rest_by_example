@@ -1,11 +1,16 @@
-from db.adapter import PhonebookAdapter
-from db.entry import Entry
+from db.adapter import PhonebookDbAdapter, Entry, PhonebookDbException
 
 
-class MemoryPhonebookAdapter(PhonebookAdapter):
+class MemoryPhonebookDbAdapter(PhonebookDbAdapter):
+    _phonebook = {}
+
+    def size(self):
+        return len(self._phonebook)
 
     def add(self, entry: Entry):
-        pass
+        if not entry.id:
+            raise PhonebookDbException("missing id for entry: " + str(entry))
+        self._phonebook[entry.id] = entry
 
     def remove(self, entry: Entry):
         pass

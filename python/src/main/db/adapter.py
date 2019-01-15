@@ -1,9 +1,15 @@
 from abc import ABC, abstractmethod
 
-from src.main.db.entry import Entry
+
+class Entry:
+    id = None
 
 
-class PhonebookAdapter(ABC):
+class PhonebookDbAdapter(ABC):
+
+    @abstractmethod
+    def size(self):
+        pass
 
     @abstractmethod
     def add(self, entry: Entry):
@@ -20,3 +26,7 @@ class PhonebookAdapter(ABC):
     @abstractmethod
     def list(self):
         pass
+
+
+class PhonebookDbException(Exception):
+    pass
