@@ -17,7 +17,6 @@ class TestMemory(TestCase):
         # then
         self.assertEqual(self.adapter.size(), 1)
 
-
     def test_add_entry_without_id_should_generatge_random_id(self):
         # given
         entry = Entry()
@@ -65,5 +64,9 @@ class TestMemory(TestCase):
         # then
         entry.name = 'Bob'
         self.assertEqual(self.adapter.get(entry.id).name, 'Alice')
-    
-    # FIXME: get nonexistent entry
+
+    def test_get_should_return_none_if_no_entry_found(self):
+        # when
+        result = self.adapter.get(123)
+        # then
+        self.assertIsNone(result)

@@ -23,7 +23,10 @@ class MemoryPhonebookDbAdapter(PhonebookDbAdapter):
         pass
 
     def get(self, id) -> Entry:
-        return self._phonebook[id]
+        if id in self._phonebook:
+            return self._phonebook[id]
+        else:
+            return None
 
     def list(self):
         pass
