@@ -17,12 +17,11 @@ class TestMemory(TestCase):
         # then
         self.assertEqual(self.adapter.size(), 1)
 
-    # FIXME: add should deep copy the entry
 
     def test_add_entry_without_id_should_generatge_random_id(self):
         # given
         entry = Entry()
-        entry.name = "Alice"
+        entry.name = 'Alice'
         # when
         self.adapter.add(entry)
         # then
@@ -33,10 +32,10 @@ class TestMemory(TestCase):
         id = 1234
         entry1 = Entry()
         entry1.id = id
-        entry1.name = "Alice"
+        entry1.name = 'Alice'
         entry2 = Entry()
         entry2.id = id
-        entry2.name = "Bob"
+        entry2.name = 'Bob'
         self.adapter.add(entry1)
         # then
         with self.assertRaises(PhonebookDbException):
@@ -49,11 +48,22 @@ class TestMemory(TestCase):
         # given
         entry = Entry()
         entry.id = id
-        entry.name = "Alice"
+        entry.name = 'Alice'
         self.adapter.add(entry)
         # when
         result = self.adapter.get(entry.id)
         # then
         self.assertEqual(result, entry)
 
+    def test_add_should_deep_copy_the_entry(self):
+        # given
+        entry = Entry()
+        entry.id = id
+        entry.name = 'Alice'
+        # when
+        self.adapter.add(entry)
+        # then
+        entry.name = 'Bob'
+        self.assertEqual(self.adapter.get(entry.id).name, 'Alice')
+    
     # FIXME: get nonexistent entry

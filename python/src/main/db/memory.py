@@ -1,3 +1,4 @@
+from copy import deepcopy
 from uuid import uuid4
 
 from db.adapter import PhonebookDbAdapter, Entry, PhonebookDbException
@@ -16,7 +17,7 @@ class MemoryPhonebookDbAdapter(PhonebookDbAdapter):
             raise PhonebookDbException("id already exists: " + str(entry.id))
         if not entry.id:
             entry.id = uuid4()
-        self._phonebook[entry.id] = entry
+        self._phonebook[entry.id] = deepcopy(entry)
 
     def remove(self, entry: Entry):
         pass

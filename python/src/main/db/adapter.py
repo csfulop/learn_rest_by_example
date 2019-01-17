@@ -4,6 +4,9 @@ from abc import ABC, abstractmethod
 class Entry:
     id = None
 
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
+
 
 class PhonebookDbAdapter(ABC):
 
