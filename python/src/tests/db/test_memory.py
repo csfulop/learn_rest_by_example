@@ -10,8 +10,7 @@ class TestMemory(TestCase):
 
     def test_add_entry(self):
         # given
-        entry = Entry()
-        entry.id = 1234
+        entry = Entry(1234)
         # when
         self.adapter.add(entry)
         # then
@@ -19,8 +18,7 @@ class TestMemory(TestCase):
 
     def test_add_entry_without_id_should_generatge_random_id(self):
         # given
-        entry = Entry()
-        entry.name = 'Alice'
+        entry = Entry(name='Alice')
         # when
         self.adapter.add(entry)
         # then
@@ -29,12 +27,8 @@ class TestMemory(TestCase):
     def test_add_same_id_twice_should_fail(self):
         # given
         id = 1234
-        entry1 = Entry()
-        entry1.id = id
-        entry1.name = 'Alice'
-        entry2 = Entry()
-        entry2.id = id
-        entry2.name = 'Bob'
+        entry1 = Entry(id, name='Alice')
+        entry2 = Entry(id, name='Bob')
         self.adapter.add(entry1)
         # then
         with self.assertRaises(PhonebookDbException):
@@ -45,9 +39,7 @@ class TestMemory(TestCase):
 
     def test_get_entry(self):
         # given
-        entry = Entry()
-        entry.id = id
-        entry.name = 'Alice'
+        entry = Entry(1234, name='Alice')
         self.adapter.add(entry)
         # when
         result = self.adapter.get(entry.id)
@@ -56,9 +48,7 @@ class TestMemory(TestCase):
 
     def test_add_should_deep_copy_the_entry(self):
         # given
-        entry = Entry()
-        entry.id = id
-        entry.name = 'Alice'
+        entry = Entry(1234, name='Alice')
         # when
         self.adapter.add(entry)
         # then
