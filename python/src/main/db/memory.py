@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from db.adapter import PhonebookDbAdapter, Entry, PhonebookDbException
 
 
@@ -10,10 +12,10 @@ class MemoryPhonebookDbAdapter(PhonebookDbAdapter):
         return len(self._phonebook)
 
     def add(self, entry: Entry) -> None:
-        if not entry.id:
-            raise PhonebookDbException("missing id for entry: " + str(entry))
         if entry.id in self._phonebook:
             raise PhonebookDbException("id already exists: " + str(entry.id))
+        if not entry.id:
+            entry.id = uuid4()
         self._phonebook[entry.id] = entry
 
     def remove(self, entry: Entry):

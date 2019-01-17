@@ -17,14 +17,16 @@ class TestMemory(TestCase):
         # then
         self.assertEqual(self.adapter.size(), 1)
 
-    def test_add_entry_without_id_should_fail(self):
-        # FIXME: should generate random id
+    # FIXME: add should deep copy the entry
+
+    def test_add_entry_without_id_should_generatge_random_id(self):
         # given
         entry = Entry()
+        entry.name = "Alice"
+        # when
+        self.adapter.add(entry)
         # then
-        with self.assertRaises(PhonebookDbException):
-            # when
-            self.adapter.add(entry)
+        self.assertIsNotNone(entry.id)
 
     def test_add_same_id_twice_should_fail(self):
         # given
@@ -43,4 +45,15 @@ class TestMemory(TestCase):
         self.assertEqual(self.adapter.size(), 1)
         self.assertEqual(self.adapter.get(id), entry1)
 
-    # FIXME: test get
+    def test_get_entry(self):
+        # given
+        entry = Entry()
+        entry.id = id
+        entry.name = "Alice"
+        self.adapter.add(entry)
+        # when
+        result = self.adapter.get(entry.id)
+        # then
+        self.assertEqual(result, entry)
+
+    # FIXME: get nonexistent entry
