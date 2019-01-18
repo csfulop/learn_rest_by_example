@@ -1,4 +1,5 @@
 from copy import deepcopy
+from typing import Optional
 from uuid import uuid4
 
 from db.adapter import PhonebookDbAdapter, Entry, PhonebookDbException
@@ -22,7 +23,7 @@ class MemoryPhonebookDbAdapter(PhonebookDbAdapter):
     def remove(self, entry: Entry):
         pass
 
-    def get(self, id) -> Entry:
+    def get(self, id) -> Optional[Entry]:
         if id in self._phonebook:
             return self._phonebook[id]
         else:
