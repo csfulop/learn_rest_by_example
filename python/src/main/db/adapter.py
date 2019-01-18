@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Optional, Collection
 
 
 class Entry:
@@ -16,23 +17,23 @@ class Entry:
 class PhonebookDbAdapter(ABC):
 
     @abstractmethod
-    def size(self):
+    def size(self) -> int:
         pass
 
     @abstractmethod
-    def add(self, entry: Entry):
+    def add(self, entry: Entry) -> None:
         pass
 
     @abstractmethod
-    def remove(self, entry: Entry):
+    def remove(self, id) -> None:
         pass
 
     @abstractmethod
-    def get(self, id):
+    def get(self, id) -> Optional[Entry]:
         pass
 
     @abstractmethod
-    def list(self):
+    def list(self) -> Collection[Entry]:
         pass
 
 

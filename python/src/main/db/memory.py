@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import Optional
+from typing import Optional, Collection
 from uuid import uuid4
 
 from db.adapter import PhonebookDbAdapter, Entry, PhonebookDbException
@@ -20,14 +20,17 @@ class MemoryPhonebookDbAdapter(PhonebookDbAdapter):
             entry.id = uuid4()
         self._phonebook[entry.id] = deepcopy(entry)
 
-    def remove(self, entry: Entry):
-        pass
+    def remove(self, id) -> None:
+        if id in self._phonebook:
+            del self._phonebook[id]
+        else:
+            raise PhonebookDbException("Entry with the given id does not exists: " + str(id))
 
     def get(self, id) -> Optional[Entry]:
         if id in self._phonebook:
-            return self._phonebook[id]
+            return deepcopy(self._phonebook[id])
         else:
             return None
 
-    def list(self):
-        pass
+    def list(self) -> Collection[Entry]:
+        return deepcopy(list(self._phonebook.values()))
