@@ -1,2 +1,8 @@
 venv
 .idea
+.eggs
+.tox
+dist
+AUTHORS
+ChangeLog
+*.egg-info
