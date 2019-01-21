@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from db.adapter import Entry
+from restbyexample.phonebook.db.adapter import Entry
 
 
 class TestEntry(TestCase):

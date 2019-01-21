@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from db.adapter import Entry, PhonebookDbException
-from db.memory import MemoryPhonebookDbAdapter
+from restbyexample.phonebook.db.adapter import Entry, PhonebookDbException
+from restbyexample.phonebook.db.memory import MemoryPhonebookDbAdapter
 
 
 class TestMemory(TestCase):

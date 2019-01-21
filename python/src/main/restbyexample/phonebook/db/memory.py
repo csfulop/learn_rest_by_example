@@ -2,7 +2,7 @@ from copy import deepcopy
 from typing import Optional, Collection
 from uuid import uuid4
 
-from db.adapter import PhonebookDbAdapter, Entry, PhonebookDbException
+from restbyexample.phonebook.db.adapter import PhonebookDbAdapter, Entry, PhonebookDbException
 
 
 class MemoryPhonebookDbAdapter(PhonebookDbAdapter):
