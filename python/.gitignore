@@ -6,3 +6,4 @@ dist
 AUTHORS
 ChangeLog
 *.egg-info
+__pycache__
