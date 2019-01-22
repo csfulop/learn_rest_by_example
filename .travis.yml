@@ -7,5 +7,7 @@ matrix:
 
 before_script:
   - cd python
+install:
+  - pip install tox
 script:
   - tox
