@@ -1,2 +1,6 @@
-# rest_by_example
-Learn REST frameworks by example
+[![Build Status](https://travis-ci.org/csfulop/learn_rest_by_example.svg?branch=master)](https://travis-ci.org/csfulop/learn_rest_by_example)
+
+Learn REST by example
+---------------------
+
+
