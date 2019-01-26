@@ -1,6 +1,9 @@
 from pecan import abort, expose
 
 # Note: this is *not* thread-safe.  In real life, use a persistent data store.
+from restbyexample.phonebook import PhonebookDbAdapterImpl
+from restbyexample.phonebook.pecan.controllers.phonebook_controller import PhonebookController
+
 BOOKS = {
     '0': 'The Last of the Mohicans',
     '1': 'Catch-22'
@@ -11,6 +14,8 @@ class RootController(object):
 
     @expose()
     def _lookup(self, id_, *remainder):
+        if id_ == 'phonebook':
+            return PhonebookController(PhonebookDbAdapterImpl()), remainder
         return BookController(id_), remainder
 
     # HTTP GET /
@@ -36,7 +41,7 @@ class BookController(object):
     def book(self):
         if self.id_ in BOOKS:
             return dict(id=self.id_, name=BOOKS[self.id_])
-        abort(404) # FIXME: "Error page could not be fetched"
+        abort(404)  # FIXME: "Error page could not be fetched"
 
     # HTTP GET /<id>/
     # FIXME: does not work without trailing slash

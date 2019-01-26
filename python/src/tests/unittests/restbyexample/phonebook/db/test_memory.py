@@ -23,6 +23,7 @@ class TestMemory(TestCase):
         self.adapter.add(entry)
         # then
         self.assertIsNotNone(entry.id)
+        # FIXME: should be string
 
     def test_add_same_id_twice_should_fail(self):
         # given

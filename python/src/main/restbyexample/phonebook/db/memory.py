@@ -17,7 +17,7 @@ class MemoryPhonebookDbAdapter(PhonebookDbAdapter):
         if entry.id in self._phonebook:
             raise PhonebookDbException("id already exists: " + str(entry.id))
         if not entry.id:
-            entry.id = uuid4()
+            entry.id = str(uuid4())
         self._phonebook[entry.id] = deepcopy(entry)
 
     def remove(self, id) -> None:
