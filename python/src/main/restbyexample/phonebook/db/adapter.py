@@ -5,7 +5,7 @@ from typing import Optional, Collection
 class Entry:
     id = None
 
-    def __init__(self, id=None, **kwargs) -> None:
+    def __init__(self, id: str = None, **kwargs) -> None:
         self.id = id
         for key, value in kwargs.items():
             self.__setattr__(key, value)

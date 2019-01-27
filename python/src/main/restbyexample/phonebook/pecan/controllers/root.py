@@ -11,11 +11,12 @@ BOOKS = {
 
 
 class RootController(object):
+    _db_adapter_impl = PhonebookDbAdapterImpl()
 
     @expose()
     def _lookup(self, id_, *remainder):
         if id_ == 'phonebook':
-            return PhonebookController(PhonebookDbAdapterImpl()), remainder
+            return PhonebookController(self._db_adapter_impl), remainder
         return BookController(id_), remainder
 
     # HTTP GET /

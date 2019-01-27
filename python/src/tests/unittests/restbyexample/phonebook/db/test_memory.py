@@ -1,5 +1,8 @@
 from unittest import TestCase
 
+from hamcrest import not_none, instance_of
+from hamcrest.core import assert_that
+
 from restbyexample.phonebook.db.adapter import Entry, PhonebookDbException
 from restbyexample.phonebook.db.memory import MemoryPhonebookDbAdapter
 
@@ -22,8 +25,8 @@ class TestMemory(TestCase):
         # when
         self.adapter.add(entry)
         # then
-        self.assertIsNotNone(entry.id)
-        # FIXME: should be string
+        assert_that(entry.id, not_none())
+        assert_that(entry.id, instance_of(str))
 
     def test_add_same_id_twice_should_fail(self):
         # given
