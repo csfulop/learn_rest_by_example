@@ -13,13 +13,13 @@ class TestMemory(TestCase):
 
     def test_add_entry(self):
         # given
-        entry = Entry(1234)
+        entry = Entry('1234')
         # when
         self.adapter.add(entry)
         # then
         self.assertEqual(self.adapter.size(), 1)
 
-    def test_add_entry_without_id_should_generatge_random_id(self):
+    def test_add_entry_without_id_should_generate_random_id(self):
         # given
         entry = Entry(name='Alice')
         # when
@@ -30,7 +30,7 @@ class TestMemory(TestCase):
 
     def test_add_same_id_twice_should_fail(self):
         # given
-        id = 1234
+        id = '1234'
         entry1 = Entry(id, name='Alice')
         entry2 = Entry(id, name='Bob')
         self.adapter.add(entry1)
@@ -43,7 +43,7 @@ class TestMemory(TestCase):
 
     def test_add_should_deepcopy_the_entry(self):
         # given
-        entry = Entry(1234, name='Alice')
+        entry = Entry('1234', name='Alice')
         # when
         self.adapter.add(entry)
         # then
@@ -52,7 +52,7 @@ class TestMemory(TestCase):
 
     def test_get_entry(self):
         # given
-        entry = Entry(1234, name='Alice')
+        entry = Entry('1234', name='Alice')
         self.adapter.add(entry)
         # when
         result = self.adapter.get(entry.id)
@@ -67,7 +67,7 @@ class TestMemory(TestCase):
 
     def test_get_should_deepcopy_the_entry(self):
         # given
-        entry = Entry(1234, name='Alice')
+        entry = Entry('1234', name='Alice')
         self.adapter.add(entry)
         # when
         result = self.adapter.get(entry.id)
@@ -100,7 +100,7 @@ class TestMemory(TestCase):
 
     def test_list_should_deepcopy_the_entries(self):
         # given
-        entry = Entry(1234, name='Alice')
+        entry = Entry('1234', name='Alice')
         self.adapter.add(entry)
         # when
         result = self.adapter.list()[0]

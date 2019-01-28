@@ -4,6 +4,7 @@ from hamcrest.core.core import is_
 
 from functionaltests.restbyexample.phonebook.pecan.functional_test_base import FunctionalTestBase
 from restbyexample.phonebook.db.adapter import Entry
+from restbyexample.phonebook.pecan.controllers.phonebook_controller import objToDict
 
 
 class TestPhonebook(FunctionalTestBase):
@@ -31,8 +32,28 @@ class TestPhonebook(FunctionalTestBase):
 
     def test_add_entry_should_save_entry(self):
         # given
-        entry = Entry(1234)
+        entry = Entry('1234')
         # when
-        self.app.post_json(url='/phonebook/', params=entry.__dict__)  # FIXME: use JSONEncoder
+        self.app.post_json(url='/phonebook/', params=objToDict(entry))
         # then
         assert_that(self.app.get(url='/phonebook/').json, has_length(1))
+
+    def test_add_same_id_twice_should_fail(self):
+        # given
+        entry1 = Entry('1234')
+        entry2 = Entry('1234')
+        # when
+        self.app.post_json(url='/phonebook/', params=objToDict(entry1))
+        response = self.app.post_json(url='/phonebook/', params=objToDict(entry2), expect_errors=True)
+        # then
+        assert_that(response.status_int, is_(500))  # FIXME: should use correct status code
+        # FIXME: should return json error content
+
+    def test_get_entry_by_id(self):
+        # given
+        entry = Entry('1234', name='Charlie')
+        self.app.post_json(url='/phonebook/', params=objToDict(entry))
+        # when
+        response = self.app.get('/phonebook/1234/')
+        # then
+        assert_that(response.json, is_(objToDict(entry)))

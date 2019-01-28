@@ -20,15 +20,15 @@ class MemoryPhonebookDbAdapter(PhonebookDbAdapter):
             entry.id = str(uuid4())
         self._phonebook[entry.id] = deepcopy(entry)
 
-    def remove(self, id) -> None:
-        if id in self._phonebook:
-            del self._phonebook[id]
+    def remove(self, id_) -> None:
+        if id_ in self._phonebook:
+            del self._phonebook[id_]
         else:
-            raise PhonebookDbException("Entry with the given id does not exists: " + str(id))
+            raise PhonebookDbException("Entry with the given id does not exists: " + str(id_))
 
-    def get(self, id) -> Optional[Entry]:
-        if id in self._phonebook:
-            return deepcopy(self._phonebook[id])
+    def get(self, id_) -> Optional[Entry]:
+        if id_ in self._phonebook:
+            return deepcopy(self._phonebook[id_])
         else:
             return None
 
