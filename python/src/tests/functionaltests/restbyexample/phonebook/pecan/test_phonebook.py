@@ -1,4 +1,4 @@
-from hamcrest import empty, has_key, has_length
+from hamcrest import empty, has_length
 from hamcrest.core import assert_that
 from hamcrest.core.core import is_
 
@@ -28,7 +28,9 @@ class TestPhonebook(FunctionalTestBase):
         response = self.app.post_json('/phonebook/', params={'name': 'Alice', 'phone': '1234'})
         # then
         assert_that(response.status_int, is_(200))
-        assert_that(response.json, has_key('id'))
+        id_ = response.json['id']
+        get_result = self.app.get('/phonebook/' + id_ + '/').json
+        assert_that(get_result, is_({'id': id_, 'name': 'Alice', 'phone': '1234'}))
 
     def test_add_entry_should_save_entry(self):
         # given
@@ -57,3 +59,10 @@ class TestPhonebook(FunctionalTestBase):
         response = self.app.get('/phonebook/1234/')
         # then
         assert_that(response.json, is_(objToDict(entry)))
+
+    def test_get_should_return_none_if_no_entry_found(self):
+        # when
+        response = self.app.get('/phonebook/asdf/', expect_errors=True)
+        # then
+        assert_that(response.status_int, is_(404))
+        # FIXME: assert error message

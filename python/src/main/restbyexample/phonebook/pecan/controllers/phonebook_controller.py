@@ -1,3 +1,4 @@
+import pecan
 from pecan import expose
 
 from restbyexample.phonebook.db.adapter import PhonebookDbAdapter, Entry
@@ -33,7 +34,11 @@ class PhonebookEntryController(object):
 
     @expose(generic=True, template='json')
     def index(self):
-        return objToDict(self._db_adapter.get(self._id))
+        result = self._db_adapter.get(self._id)
+        if result is None:
+            pecan.response.status = 404
+        else:
+            return objToDict(result)
 
 
 def objToDict(obj):
