@@ -1,6 +1,8 @@
 from pecan import abort, expose
 
 # Note: this is *not* thread-safe.  In real life, use a persistent data store.
+from pecan.rest import RestController
+
 from restbyexample.phonebook import PhonebookDbAdapterImpl
 from restbyexample.phonebook.pecan.controllers.phonebook_controller import PhonebookController
 
@@ -11,54 +13,4 @@ BOOKS = {
 
 
 class RootController(object):
-    _db_adapter_impl = PhonebookDbAdapterImpl()
-
-    @expose()
-    def _lookup(self, id_, *remainder):
-        if id_ == 'phonebook':
-            return PhonebookController(self._db_adapter_impl), remainder
-        return BookController(id_), remainder
-
-    # HTTP GET /
-    @expose(generic=True, template='json')
-    def index(self):
-        return [dict(id=k, name=v) for k, v in BOOKS.items()]
-
-    # HTTP POST /
-    @index.when(method='POST', template='json')
-    def index_POST(self, **kw):
-        id_ = str(len(BOOKS))  # FIXME: after delete this is incorrect!
-        BOOKS[id_] = kw['name']
-        return dict(id=id_, name=kw['name'])
-
-
-class BookController(object):
-
-    def __init__(self, id_):
-        self.id_ = id_
-        assert self.book
-
-    @property
-    def book(self):
-        if self.id_ in BOOKS:
-            return dict(id=self.id_, name=BOOKS[self.id_])
-        abort(404)  # FIXME: "Error page could not be fetched"
-
-    # HTTP GET /<id>/
-    # FIXME: does not work without trailing slash
-    # FIXME: does not fail for undefined methods (eg. PATCH, POST,...)
-    @expose(generic=True, template='json')
-    def index(self):
-        return self.book
-
-    # HTTP PUT /<id>/
-    @index.when(method='PUT', template='json')
-    def index_PUT(self, **kw):
-        BOOKS[self.id_] = kw['name']
-        return self.book
-
-    # HTTP DELETE /<id>/
-    @index.when(method='DELETE', template='json')
-    def index_DELETE(self):
-        del BOOKS[self.id_]
-        return dict()
+    phonebook = PhonebookController(PhonebookDbAdapterImpl())

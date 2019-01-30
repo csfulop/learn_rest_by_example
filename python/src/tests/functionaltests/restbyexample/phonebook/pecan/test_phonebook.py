@@ -51,16 +51,36 @@ class TestPhonebook(FunctionalTestBase):
         assert_that(response.status_int, is_(500))  # FIXME: should use correct status code
         # FIXME: should return json error content
 
-    def test_get_entry_by_id(self):
+    def test_get_entry_by_id_with_trailing_slash(self):
         # given
         entry = Entry('1234', name='Charlie')
         self.app.post_json(url='/phonebook/', params=objToDict(entry))
         # when
         response = self.app.get('/phonebook/1234/')
         # then
+        assert_that(response.status_int, is_(200))
         assert_that(response.json, is_(objToDict(entry)))
 
-    def test_get_should_return_none_if_no_entry_found(self):
+    def test_get_entry_by_id(self):
+        # given
+        entry = Entry('1234', name='Charlie')
+        self.app.post_json(url='/phonebook/', params=objToDict(entry))
+        # when
+        response = self.app.get('/phonebook/1234')
+        # then
+        assert_that(response.status_int, is_(200))
+        assert_that(response.json, is_(objToDict(entry)))
+
+    def test_sub_resource_of_entry_should_send_404(self):
+        # given
+        entry = Entry('1234', name='Charlie')
+        self.app.post_json(url='/phonebook/', params=objToDict(entry))
+        # when
+        response = self.app.get('/phonebook/1234/asdf', expect_errors=True)
+        # then
+        assert_that(response.status_int, is_(404))
+
+    def test_get_should_return_404_if_no_entry_found(self):
         # when
         response = self.app.get('/phonebook/asdf/', expect_errors=True)
         # then

@@ -1,44 +1,33 @@
 import pecan
 from pecan import expose
+from pecan.rest import RestController
 
 from restbyexample.phonebook.db.adapter import PhonebookDbAdapter, Entry
 
 
-class PhonebookController(object):
+class PhonebookController(RestController):
+
     def __init__(self, db_adapter: PhonebookDbAdapter) -> None:
         super().__init__()
         self._db_adapter = db_adapter
 
-    @expose()
-    def _lookup(self, id_, *remainder):
-        return PhonebookEntryController(id_, self._db_adapter), remainder
-
-    @expose(generic=True, template='json')
-    def index(self):
+    @expose(template='json')
+    def get_all(self):
         return [objToDict(e) for e in self._db_adapter.list()]
 
-    @index.when(method='POST', template='json')
-    def index_POST(self, **kw):
-        entity = Entry(**kw)
-        self._db_adapter.add(entity)
-        return objToDict(entity)
-
-
-# FIXME: this requires trailing slash, make it work without trailing slash
-class PhonebookEntryController(object):
-
-    def __init__(self, id_, db_adapter: PhonebookDbAdapter) -> None:
-        super().__init__()
-        self._id = id_
-        self._db_adapter = db_adapter
-
-    @expose(generic=True, template='json')
-    def index(self):
-        result = self._db_adapter.get(self._id)
+    @expose(template='json')
+    def get_one(self, id_):
+        result = self._db_adapter.get(id_)
         if result is None:
             pecan.response.status = 404
         else:
             return objToDict(result)
+
+    @expose(template='json')
+    def post(self, **kw):
+        entity = Entry(**kw)
+        self._db_adapter.add(entity)
+        return objToDict(entity)
 
 
 def objToDict(obj):
