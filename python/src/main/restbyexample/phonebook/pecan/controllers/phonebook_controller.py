@@ -16,7 +16,7 @@ class PhonebookController(RestController):
         return [objToDict(e) for e in self._db_adapter.list()]
 
     @expose(template='json')
-    def get_one(self, id_):
+    def get_one(self, id_: str):
         result = self._db_adapter.get(id_)
         if result is None:
             pecan.response.status = 404
@@ -28,6 +28,14 @@ class PhonebookController(RestController):
         entity = Entry(**kw)
         self._db_adapter.add(entity)
         return objToDict(entity)
+
+    @expose(template='json')
+    def delete(self, id_: str):
+        if self._db_adapter.get(id_):
+            self._db_adapter.remove(id_)
+            pecan.response.status = 204
+        else:
+            pecan.response.status = 404
 
 
 def objToDict(obj):
