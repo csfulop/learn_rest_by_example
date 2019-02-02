@@ -18,7 +18,7 @@ class TestMemory(TestCase):
         # when
         self.adapter.add(entry)
         # then
-        self.assertEqual(self.adapter.size(), 1)
+        assert_that(self.adapter.size(), is_(1))
 
     def test_add_entry_without_id_should_generate_random_id(self):
         # given
@@ -39,8 +39,8 @@ class TestMemory(TestCase):
         with self.assertRaises(PhonebookDbException):
             # when
             self.adapter.add(entry2)
-        self.assertEqual(self.adapter.size(), 1)
-        self.assertEqual(self.adapter.get(id), entry1)
+        assert_that(self.adapter.size(), is_(1))
+        assert_that(self.adapter.get(id), equal_to(entry1))
 
     def test_add_should_deepcopy_the_entry(self):
         # given
@@ -49,7 +49,7 @@ class TestMemory(TestCase):
         self.adapter.add(entry)
         # then
         entry.name = 'Bob'
-        self.assertEqual(self.adapter.get(entry.id).name, 'Alice')
+        assert_that(self.adapter.get(entry.id).name, is_('Alice'))
 
     def test_get_entry(self):
         # given
@@ -58,7 +58,7 @@ class TestMemory(TestCase):
         # when
         result = self.adapter.get(entry.id)
         # then
-        self.assertEqual(result, entry)
+        assert_that(result, equal_to(entry))
 
     def test_get_should_return_none_if_no_entry_found(self):
         # when
@@ -74,17 +74,17 @@ class TestMemory(TestCase):
         result = self.adapter.get(entry.id)
         # then
         result.name = 'Bob'
-        self.assertEqual(self.adapter.get(entry.id).name, 'Alice')
+        assert_that(self.adapter.get(entry.id).name, is_('Alice'))
 
     def test_remove(self):
         # given
         entry = Entry(name='Alice')
         self.adapter.add(entry)
-        self.assertEqual(self.adapter.size(), 1)
+        assert_that(self.adapter.size(), is_(1))
         # when
         self.adapter.remove(entry.id)
         # then
-        self.assertEqual(self.adapter.size(), 0)
+        assert_that(self.adapter.size(), is_(0))
 
     def test_remove_should_fail_if_no_entry(self):
         # then
@@ -131,11 +131,11 @@ class TestMemory(TestCase):
         assert_that(self.adapter.get(entry.id).name, is_('Bob'))
 
     def test_list(self):
-        self.assertEqual(len(self.adapter.list()), 0)
+        assert_that(len(self.adapter.list()), is_(0))
         self.adapter.add(Entry(name='Alice'))
-        self.assertEqual(len(self.adapter.list()), 1)
+        assert_that(len(self.adapter.list()), is_(1))
         self.adapter.add(Entry(name='Bob'))
-        self.assertEqual(len(self.adapter.list()), 2)
+        assert_that(len(self.adapter.list()), is_(2))
 
     def test_list_should_deepcopy_the_entries(self):
         # given
@@ -145,4 +145,4 @@ class TestMemory(TestCase):
         result = self.adapter.list()[0]
         # then
         result.name = 'Bob'
-        self.assertEqual(self.adapter.get(entry.id).name, 'Alice')
+        assert_that(self.adapter.get(entry.id).name, is_('Alice'))
