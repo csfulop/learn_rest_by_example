@@ -127,3 +127,41 @@ class TestPhonebook(FunctionalTestBase):
         self.app.put_json(url='/phonebook/1234', params=objToDict(entry2))
         # then
         assert_that(self.app.get(url='/phonebook/1234').json, equal_to(objToDict(entry2)))
+
+    def test_put_without_id(self):
+        # given
+        entry = Entry('1234', name='Charlie', phone='5678')
+        self.app.post_json(url='/phonebook/', params=objToDict(entry))
+        # when
+        entry2 = Entry(name='Bob', mobile='9876')
+        self.app.put_json(url='/phonebook/1234', params=objToDict(entry2))
+        # then
+        expected = Entry('1234', name='Bob', mobile='9876')
+        assert_that(self.app.get(url='/phonebook/1234').json, equal_to(objToDict(expected)))
+
+    def test_put_should_fail_if_id_in_url_and_body_mismatch(self):
+        # given
+        entry = Entry('1234', name='Charlie', phone='5678')
+        self.app.post_json(url='/phonebook/', params=objToDict(entry))
+        # when
+        entry2 = Entry('4567', name='Bob', mobile='9876')
+        response = self.app.put_json(url='/phonebook/1234', params=objToDict(entry2), expect_errors=True)
+        # then
+        assert_that(response.status_int, is_(400))
+
+    def test_put_new_entry_id_only_in_url(self):
+        # given
+        entry = Entry(name='Charlie', phone='5678')
+        # when
+        response = self.app.put_json(url='/phonebook/1234', params=objToDict(entry))
+        # then
+        expected = Entry('1234', name='Charlie', phone='5678')
+        assert_that(self.app.get(url='/phonebook/1234').json, equal_to(objToDict(expected)))
+
+    def test_put_new_entry_id_in_url_and_body(self):
+        # given
+        entry = Entry('1234', name='Charlie', phone='5678')
+        # when
+        response = self.app.put_json(url='/phonebook/1234', params=objToDict(entry))
+        # then
+        assert_that(self.app.get(url='/phonebook/1234').json, equal_to(objToDict(entry)))

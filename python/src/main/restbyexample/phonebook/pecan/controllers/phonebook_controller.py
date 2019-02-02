@@ -1,5 +1,5 @@
 import pecan
-from pecan import expose
+from pecan import expose, abort
 from pecan.rest import RestController
 
 from restbyexample.phonebook.db.adapter import PhonebookDbAdapter, Entry
@@ -25,14 +25,22 @@ class PhonebookController(RestController):
 
     @expose(template='json')
     def post(self, **kw):
-        entity = Entry(**kw)
-        self._db_adapter.add(entity)
-        return objToDict(entity)
+        entry = Entry(**kw)
+        self._db_adapter.add(entry)
+        return objToDict(entry)
 
     @expose(template='json')
     def put(self, id_: str, **kw):
-        entity = Entry(**kw)
-        self._db_adapter.modify(entity)
+        entry_id = kw.pop('id', None)
+        if not entry_id:
+            entry_id = id_
+        elif entry_id != id_:
+            abort(400, detail='Entry ID in URL and body mismatch')
+        entry = Entry(entry_id, **kw)
+        if self._db_adapter.get(entry_id):  # FIXME: add exists to adapter
+            self._db_adapter.modify(entry)
+        else:
+            self._db_adapter.add(entry)
 
     @expose(template='json')
     def delete(self, id_: str):
