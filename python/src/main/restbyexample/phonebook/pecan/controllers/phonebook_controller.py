@@ -30,6 +30,11 @@ class PhonebookController(RestController):
         return objToDict(entity)
 
     @expose(template='json')
+    def put(self, id_: str, **kw):
+        entity = Entry(**kw)
+        self._db_adapter.modify(entity)
+
+    @expose(template='json')
     def delete(self, id_: str):
         if self._db_adapter.get(id_):
             self._db_adapter.remove(id_)

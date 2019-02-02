@@ -1,4 +1,4 @@
-from hamcrest import empty, has_length, has_item
+from hamcrest import empty, has_length, has_item, equal_to
 from hamcrest.core import assert_that
 from hamcrest.core.core import is_
 
@@ -8,7 +8,7 @@ from restbyexample.phonebook.pecan.controllers.phonebook_controller import objTo
 
 
 class TestPhonebook(FunctionalTestBase):
-    def test_list_of_empty_phonebook_should_return_empty_list(self):
+    def test_get_list_of_empty_phonebook_should_return_empty_list(self):
         # when
         response = self.app.get('/phonebook/')
         # then
@@ -17,13 +17,13 @@ class TestPhonebook(FunctionalTestBase):
 
     # FIXME: test invalid method
 
-    def test_get_not_found(self):
+    def test_get_invalid_url_should_fail(self):
         # when
         response = self.app.get('/phonebook/bogus/url', expect_errors=True)
         # then
         assert_that(response.status_int, is_(404))
 
-    def test_add_entry_without_id_should_generate_random_id(self):
+    def test_post_entry_without_id_should_generate_random_id(self):
         # when
         response = self.app.post_json('/phonebook/', params={'name': 'Alice', 'phone': '1234'})
         # then
@@ -32,7 +32,7 @@ class TestPhonebook(FunctionalTestBase):
         get_result = self.app.get('/phonebook/' + id_ + '/').json
         assert_that(get_result, is_({'id': id_, 'name': 'Alice', 'phone': '1234'}))
 
-    def test_add_entry_should_save_entry(self):
+    def test_post_entry_should_save_entry(self):
         # given
         entry = Entry('1234')
         # when
@@ -40,7 +40,7 @@ class TestPhonebook(FunctionalTestBase):
         # then
         assert_that(self.app.get(url='/phonebook/').json, has_length(1))
 
-    def test_add_same_id_twice_should_fail(self):
+    def test_post_same_id_twice_should_fail(self):
         # given
         entry1 = Entry('1234')
         entry2 = Entry('1234')
@@ -87,7 +87,7 @@ class TestPhonebook(FunctionalTestBase):
         assert_that(response.status_int, is_(404))
         # FIXME: assert error message
 
-    def test_list_multiple_entries(self):
+    def test_get_list_of_multiple_entries(self):
         # given
         self.app.post_json('/phonebook/', params={'name': 'Alice', 'id': '1'})
         self.app.post_json('/phonebook/', params={'name': 'Bob', 'id': '2'})
@@ -117,3 +117,13 @@ class TestPhonebook(FunctionalTestBase):
         response = self.app.delete(url='/phonebook/1234', expect_errors=True)
         # then
         assert_that(response.status_int, is_(404))
+
+    def test_put_should_modify_whole_entry(self):
+        # given
+        entry = Entry('1234', name='Charlie', phone='5678')
+        self.app.post_json(url='/phonebook/', params=objToDict(entry))
+        # when
+        entry2 = Entry('1234', name='Bob', mobile='9876')
+        self.app.put_json(url='/phonebook/1234', params=objToDict(entry2))
+        # then
+        assert_that(self.app.get(url='/phonebook/1234').json, equal_to(objToDict(entry2)))
