@@ -1,7 +1,8 @@
 from unittest import TestCase
 
-from hamcrest import not_none, instance_of
+from hamcrest import not_none, instance_of, equal_to
 from hamcrest.core import assert_that
+from hamcrest.core.core import is_
 
 from restbyexample.phonebook.db.adapter import Entry, PhonebookDbException
 from restbyexample.phonebook.db.memory import MemoryPhonebookDbAdapter
@@ -90,6 +91,43 @@ class TestMemory(TestCase):
         with self.assertRaises(PhonebookDbException):
             # when
             self.adapter.remove(1)
+
+    def test_modify(self):
+        # given
+        entry1 = Entry(name='Alice', id='1234')
+        self.adapter.add(entry1)
+        entry2 = Entry(name='Bob', id='1234')
+        # when
+        self.adapter.modify(entry2)
+        # then
+        assert_that(self.adapter.get('1234'), equal_to(entry2))
+
+    def test_modify_should_fail_without_id(self):
+        # given
+        entry = Entry(name='Alice')
+        # then
+        with self.assertRaises(PhonebookDbException):
+            # when
+            self.adapter.modify(entry)
+
+    def test_modify_not_existing_entry_should_fail(self):
+        # given
+        entry = Entry(name='Alice', id='1234')
+        # then
+        with self.assertRaises(PhonebookDbException):
+            # when
+            self.adapter.modify(entry)
+
+    def test_modify_should_deepcopy_the_entry(self):
+        # given
+        entry = Entry('1234', name='Alice')
+        self.adapter.add(entry)
+        entry.name = 'Bob'
+        # when
+        self.adapter.modify(entry)
+        # then
+        entry.name = 'Charlie'
+        assert_that(self.adapter.get(entry.id).name, is_('Bob'))
 
     def test_list(self):
         self.assertEqual(len(self.adapter.list()), 0)

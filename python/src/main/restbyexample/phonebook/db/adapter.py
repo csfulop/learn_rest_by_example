@@ -31,6 +31,10 @@ class PhonebookDbAdapter(ABC):
         pass
 
     @abstractmethod
+    def modify(self, entry: Entry):
+        pass
+
+    @abstractmethod
     def list(self) -> Collection[Entry]:
         pass
 
