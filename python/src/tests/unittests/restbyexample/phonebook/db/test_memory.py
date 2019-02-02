@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from hamcrest import not_none, instance_of, equal_to
+from hamcrest import not_none, instance_of, equal_to, raises, calling
 from hamcrest.core import assert_that
 from hamcrest.core.core import is_
 
@@ -113,10 +113,11 @@ class TestMemory(TestCase):
     def test_modify_not_existing_entry_should_fail(self):
         # given
         entry = Entry(name='Alice', id='1234')
-        # then
-        with self.assertRaises(PhonebookDbException):
+        assert_that(
             # when
-            self.adapter.modify(entry)
+            calling(self.adapter.modify).with_args(entry),
+            # then
+            raises(PhonebookDbException))
 
     def test_modify_should_deepcopy_the_entry(self):
         # given
