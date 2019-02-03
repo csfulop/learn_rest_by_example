@@ -7,6 +7,11 @@ from restbyexample.phonebook.db.adapter import Entry
 from restbyexample.phonebook.pecan.controllers.phonebook_controller import objToDict
 
 
+# FIXME: should return json error content
+# FIXME: assert error message
+# FIXME: test invalid method
+
+
 class TestPhonebook(FunctionalTestBase):
     def test_get_list_of_empty_phonebook_should_return_empty_list(self):
         # when
@@ -14,8 +19,6 @@ class TestPhonebook(FunctionalTestBase):
         # then
         assert_that(response.status_int, is_(200))
         assert_that(response.json, empty())
-
-    # FIXME: test invalid method
 
     def test_get_invalid_url_should_fail(self):
         # when
@@ -51,7 +54,14 @@ class TestPhonebook(FunctionalTestBase):
         response = self.app.post_json(url='/phonebook/', params=objToDict(entry2), expect_errors=True)
         # then
         assert_that(response.status_int, is_(400))
-        # FIXME: should return json error content
+
+    def test_post_to_subresource_should_fail(self):
+        # given
+        entry = Entry('1234')
+        # when
+        result = self.app.post_json(url='/phonebook/asdf', params=objToDict(entry), expect_errors=True)
+        # then
+        assert_that(result.status_int, is_(404))
 
     def test_get_entry_by_id_with_trailing_slash(self):
         # given
@@ -87,7 +97,6 @@ class TestPhonebook(FunctionalTestBase):
         response = self.app.get('/phonebook/asdf/', expect_errors=True)
         # then
         assert_that(response.status_int, is_(404))
-        # FIXME: assert error message
 
     def test_get_list_of_multiple_entries(self):
         # given
@@ -125,6 +134,15 @@ class TestPhonebook(FunctionalTestBase):
     def test_delete_nonexisting_entry_should_fail(self):
         # when
         response = self.app.delete(url='/phonebook/1234', expect_errors=True)
+        # then
+        assert_that(response.status_int, is_(404))
+
+    def test_delete_subresource_should_fail(self):
+        # given
+        entry = Entry('1234', name='Charlie')
+        self.app.post_json(url='/phonebook/', params=objToDict(entry))
+        # when
+        response = self.app.delete(url='/phonebook/1234/asdf', expect_errors=True)
         # then
         assert_that(response.status_int, is_(404))
 
@@ -194,6 +212,14 @@ class TestPhonebook(FunctionalTestBase):
         assert_that(response.json, equal_to(objToDict(entry)))
         assert_that(self.app.get(url='/phonebook/1234').json, equal_to(objToDict(entry)))
 
+    def test_put_to_subresource_should_fail(self):
+        # given
+        entry = Entry('1234', name='Charlie', phone='5678')
+        # when
+        response = self.app.put_json(url='/phonebook/1234/asdf', params=objToDict(entry), expect_errors=True)
+        # then
+        assert_that(response.status_int, is_(404))
+
     def test_patch(self):
         # given
         entry = Entry('1234', name='Charlie', phone='5678')
@@ -234,3 +260,14 @@ class TestPhonebook(FunctionalTestBase):
         response = self.app.patch_json(url='/phonebook/1234', params={'id': '456', 'name': 'David'}, expect_errors=True)
         # then
         assert_that(response.status_int, is_(400))
+
+    def test_patch_to_subresource_should_fail(self):
+        # given
+        entry = Entry('1234', name='Charlie', phone='5678')
+        self.app.post_json(url='/phonebook/', params=objToDict(entry))
+        # when
+        response = self.app.patch_json(url='/phonebook/1234/asdf',
+                                       params={'name': 'David', 'phone': None, 'mobile': 5555},
+                                       expect_errors=True)
+        # then
+        assert_that(response.status_int, is_(404))
