@@ -14,10 +14,17 @@ from restbyexample.phonebook.pecan.controllers.phonebook_controller import objTo
 class TestPhonebook(FunctionalTestBase):
     def test_get_list_of_empty_phonebook_should_return_empty_list(self):
         # when
+        response = self.app.get('/phonebook')
+        # then
+        assert_that(response.status_int, is_(200))
+        assert_that(response.json, equal_to([]))
+
+    def test_get_list_with_trailing_slash(self):
+        # when
         response = self.app.get('/phonebook/')
         # then
         assert_that(response.status_int, is_(200))
-        assert_that(response.json, empty())
+        assert_that(response.json, equal_to([]))
 
     def test_get_invalid_url_should_fail(self):
         # when
@@ -40,8 +47,18 @@ class TestPhonebook(FunctionalTestBase):
         # given
         entry = Entry('1234')
         # when
-        self.app.post_json(url='/phonebook/', params=objToDict(entry))
+        response = self.app.post_json(url='/phonebook', params=objToDict(entry))
         # then
+        assert_that(response.status_int, is_(200))
+        assert_that(self.app.get(url='/phonebook/').json, has_length(1))
+
+    def test_post_entry_with_trailing_slash(self):
+        # given
+        entry = Entry('1234')
+        # when
+        response = self.app.post_json(url='/phonebook/', params=objToDict(entry))
+        # then
+        assert_that(response.status_int, is_(200))
         assert_that(self.app.get(url='/phonebook/').json, has_length(1))
 
     def test_post_same_id_twice_should_fail(self):
