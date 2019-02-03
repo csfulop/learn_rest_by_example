@@ -31,7 +31,7 @@ class TestPhonebook(FunctionalTestBase):
         id_ = response.json['id']
         expected = Entry(id_, name='Alice', phone='1234')
         assert_that(response.json, equal_to(objToDict(expected)))
-        get_result = self.app.get('/phonebook/' + id_ + '/').json
+        get_result = self.app.get('/phonebook/' + id_).json
         assert_that(get_result, equal_to(objToDict(expected)))
 
     def test_post_entry_should_save_entry(self):
@@ -109,10 +109,18 @@ class TestPhonebook(FunctionalTestBase):
         response = self.app.delete(url='/phonebook/1234')
         # then
         assert_that(response.status_int, is_(204))
-        response = self.app.get('/phonebook/1234/', expect_errors=True)
-        assert_that(response.status_int, is_(404))
-        response = self.app.get('/phonebook/')
-        assert_that(response.json, empty())
+        assert_that(self.app.get('/phonebook/1234/', expect_errors=True).status_int, is_(404))
+        assert_that(self.app.get('/phonebook/').json, empty())
+
+    def test_delete_entry_with_trailing_slash(self):
+        # given
+        entry = Entry('1234', name='Charlie')
+        self.app.post_json(url='/phonebook/', params=objToDict(entry))
+        # when
+        response = self.app.delete(url='/phonebook/1234/')
+        # then
+        assert_that(response.status_int, is_(204))
+        assert_that(self.app.get('/phonebook/').json, empty())
 
     def test_delete_nonexisting_entry_should_fail(self):
         # when
@@ -176,12 +184,34 @@ class TestPhonebook(FunctionalTestBase):
         assert_that(response.json, equal_to(objToDict(entry)))
         assert_that(self.app.get(url='/phonebook/1234').json, equal_to(objToDict(entry)))
 
+    def test_put_with_trailing_slash(self):
+        # given
+        entry = Entry('1234', name='Charlie', phone='5678')
+        # when
+        response = self.app.put_json(url='/phonebook/1234/', params=objToDict(entry))
+        # then
+        assert_that(response.status_int, is_(200))
+        assert_that(response.json, equal_to(objToDict(entry)))
+        assert_that(self.app.get(url='/phonebook/1234').json, equal_to(objToDict(entry)))
+
     def test_patch(self):
         # given
         entry = Entry('1234', name='Charlie', phone='5678')
         self.app.post_json(url='/phonebook/', params=objToDict(entry))
         # when
         response = self.app.patch_json(url='/phonebook/1234', params={'name': 'David', 'phone': None, 'mobile': 5555})
+        # then
+        expected = Entry('1234', name='David', mobile=5555)
+        assert_that(response.status_int, is_(200))
+        assert_that(response.json, equal_to(objToDict(expected)))
+        assert_that(self.app.get(url='/phonebook/1234').json, equal_to(objToDict(expected)))
+
+    def test_patch_with_trailing_slash(self):
+        # given
+        entry = Entry('1234', name='Charlie', phone='5678')
+        self.app.post_json(url='/phonebook/', params=objToDict(entry))
+        # when
+        response = self.app.patch_json(url='/phonebook/1234/', params={'name': 'David', 'phone': None, 'mobile': 5555})
         # then
         expected = Entry('1234', name='David', mobile=5555)
         assert_that(response.status_int, is_(200))
