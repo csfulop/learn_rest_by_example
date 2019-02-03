@@ -1,8 +1,9 @@
+import json_merge_patch
 import pecan
-from pecan import expose, abort
+from pecan import expose, abort, request
 from pecan.rest import RestController
 
-from restbyexample.phonebook.db.adapter import PhonebookDbAdapter, Entry
+from restbyexample.phonebook.db.adapter import PhonebookDbAdapter, Entry, PhonebookDbException
 
 
 class PhonebookController(RestController):
@@ -24,23 +25,41 @@ class PhonebookController(RestController):
             return objToDict(result)
 
     @expose(template='json')
-    def post(self, **kw):
-        entry = Entry(**kw)
-        self._db_adapter.add(entry)
+    def post(self):
+        entry = Entry(**request.json)
+        try:
+            self._db_adapter.add(entry)
+        except PhonebookDbException as e:
+            abort(400, e.args[0])
         return objToDict(entry)
 
     @expose(template='json')
-    def put(self, id_: str, **kw):
-        entry_id = kw.pop('id', None)
+    def put(self, id_: str):
+        modified_entry = request.json
+        entry_id = modified_entry.pop('id', None)
         if not entry_id:
             entry_id = id_
         elif entry_id != id_:
             abort(400, detail='Entry ID in URL and body mismatch')
-        entry = Entry(entry_id, **kw)
+        entry = Entry(entry_id, **modified_entry)
         if self._db_adapter.get(entry_id):  # FIXME: add exists to adapter
             self._db_adapter.modify(entry)
         else:
             self._db_adapter.add(entry)
+        return objToDict(entry)
+
+    @expose(template='json')
+    def patch(self, id_: str):
+        actual = objToDict(self._db_adapter.get(id_))
+        if actual is None:
+            abort(400, detail='Entry does not exists with ID: ' + id_)
+        patch = request.json
+        if 'id' in patch and patch['id'] != id_:
+            abort(400, detail='Entry ID in URL and body mismatch')
+        result = json_merge_patch.merge(actual, patch)
+        result.pop('id')
+        self._db_adapter.modify(Entry(id_, **result))
+        return objToDict(self._db_adapter.get(id_))
 
     @expose(template='json')
     def delete(self, id_: str):

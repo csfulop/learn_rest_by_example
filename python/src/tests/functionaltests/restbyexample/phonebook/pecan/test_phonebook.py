@@ -29,8 +29,10 @@ class TestPhonebook(FunctionalTestBase):
         # then
         assert_that(response.status_int, is_(200))
         id_ = response.json['id']
+        expected = Entry(id_, name='Alice', phone='1234')
+        assert_that(response.json, equal_to(objToDict(expected)))
         get_result = self.app.get('/phonebook/' + id_ + '/').json
-        assert_that(get_result, is_({'id': id_, 'name': 'Alice', 'phone': '1234'}))
+        assert_that(get_result, equal_to(objToDict(expected)))
 
     def test_post_entry_should_save_entry(self):
         # given
@@ -48,7 +50,7 @@ class TestPhonebook(FunctionalTestBase):
         self.app.post_json(url='/phonebook/', params=objToDict(entry1))
         response = self.app.post_json(url='/phonebook/', params=objToDict(entry2), expect_errors=True)
         # then
-        assert_that(response.status_int, is_(500))  # FIXME: should use correct status code
+        assert_that(response.status_int, is_(400))
         # FIXME: should return json error content
 
     def test_get_entry_by_id_with_trailing_slash(self):
@@ -124,8 +126,10 @@ class TestPhonebook(FunctionalTestBase):
         self.app.post_json(url='/phonebook/', params=objToDict(entry))
         # when
         entry2 = Entry('1234', name='Bob', mobile='9876')
-        self.app.put_json(url='/phonebook/1234', params=objToDict(entry2))
+        response = self.app.put_json(url='/phonebook/1234', params=objToDict(entry2))
         # then
+        assert_that(response.status_int, is_(200))
+        assert_that(response.json, equal_to(objToDict(entry2)))
         assert_that(self.app.get(url='/phonebook/1234').json, equal_to(objToDict(entry2)))
 
     def test_put_without_id(self):
@@ -134,12 +138,14 @@ class TestPhonebook(FunctionalTestBase):
         self.app.post_json(url='/phonebook/', params=objToDict(entry))
         # when
         entry2 = Entry(name='Bob', mobile='9876')
-        self.app.put_json(url='/phonebook/1234', params=objToDict(entry2))
+        response = self.app.put_json(url='/phonebook/1234', params=objToDict(entry2))
         # then
         expected = Entry('1234', name='Bob', mobile='9876')
+        assert_that(response.status_int, is_(200))
+        assert_that(response.json, equal_to(objToDict(expected)))
         assert_that(self.app.get(url='/phonebook/1234').json, equal_to(objToDict(expected)))
 
-    def test_put_should_fail_if_id_in_url_and_body_mismatch(self):
+    def test_put_should_fail_when_id_in_url_and_body_mismatch(self):
         # given
         entry = Entry('1234', name='Charlie', phone='5678')
         self.app.post_json(url='/phonebook/', params=objToDict(entry))
@@ -156,6 +162,8 @@ class TestPhonebook(FunctionalTestBase):
         response = self.app.put_json(url='/phonebook/1234', params=objToDict(entry))
         # then
         expected = Entry('1234', name='Charlie', phone='5678')
+        assert_that(response.status_int, is_(200))
+        assert_that(response.json, equal_to(objToDict(expected)))
         assert_that(self.app.get(url='/phonebook/1234').json, equal_to(objToDict(expected)))
 
     def test_put_new_entry_id_in_url_and_body(self):
@@ -164,4 +172,35 @@ class TestPhonebook(FunctionalTestBase):
         # when
         response = self.app.put_json(url='/phonebook/1234', params=objToDict(entry))
         # then
+        assert_that(response.status_int, is_(200))
+        assert_that(response.json, equal_to(objToDict(entry)))
         assert_that(self.app.get(url='/phonebook/1234').json, equal_to(objToDict(entry)))
+
+    def test_patch(self):
+        # given
+        entry = Entry('1234', name='Charlie', phone='5678')
+        self.app.post_json(url='/phonebook/', params=objToDict(entry))
+        # when
+        response = self.app.patch_json(url='/phonebook/1234', params={'name': 'David', 'phone': None, 'mobile': 5555})
+        # then
+        expected = Entry('1234', name='David', mobile=5555)
+        assert_that(response.status_int, is_(200))
+        assert_that(response.json, equal_to(objToDict(expected)))
+        assert_that(self.app.get(url='/phonebook/1234').json, equal_to(objToDict(expected)))
+
+    def test_patch_non_existing_entry_should_fail(self):
+        # when
+        response = self.app.patch_json(url='/phonebook/1234',
+                                       params={'name': 'David', 'phone': None, 'mobile': 5555},
+                                       expect_errors=True)
+        # then
+        assert_that(response.status_int, is_(400))
+
+    def test_patch_should_fail_when_id_in_url_and_body_mismatch(self):
+        # given
+        entry = Entry('1234', name='Charlie', phone='5678')
+        self.app.post_json(url='/phonebook/', params=objToDict(entry))
+        # when
+        response = self.app.patch_json(url='/phonebook/1234', params={'id': '456', 'name': 'David'}, expect_errors=True)
+        # then
+        assert_that(response.status_int, is_(400))
