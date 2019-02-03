@@ -6,6 +6,9 @@ from pecan.rest import RestController
 from restbyexample.phonebook.db.adapter import PhonebookDbAdapter, Entry, PhonebookDbException
 
 
+# FIXME: add Entry controller to handle invalid methods better
+
+
 class PhonebookController(RestController):
 
     def __init__(self, db_adapter: PhonebookDbAdapter) -> None:
@@ -34,7 +37,9 @@ class PhonebookController(RestController):
         return objToDict(entry)
 
     @expose(template='json')
-    def put(self, id_: str):
+    def put(self, id_: str = None):
+        if not id_:
+            abort(404)
         modified_entry = request.json
         entry_id = modified_entry.pop('id', None)
         if not entry_id:
@@ -49,7 +54,9 @@ class PhonebookController(RestController):
         return objToDict(entry)
 
     @expose(template='json')
-    def patch(self, id_: str):
+    def patch(self, id_: str = None):
+        if not id_:
+            abort(404)
         actual = objToDict(self._db_adapter.get(id_))
         if actual is None:
             abort(400, detail='Entry does not exists with ID: ' + id_)
@@ -62,7 +69,9 @@ class PhonebookController(RestController):
         return objToDict(self._db_adapter.get(id_))
 
     @expose(template='json')
-    def delete(self, id_: str):
+    def delete(self, id_: str = None):
+        if not id_:
+            abort(404)
         if self._db_adapter.get(id_):
             self._db_adapter.remove(id_)
             pecan.response.status = 204

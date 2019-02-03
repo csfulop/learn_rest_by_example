@@ -9,7 +9,6 @@ from restbyexample.phonebook.pecan.controllers.phonebook_controller import objTo
 
 # FIXME: should return json error content
 # FIXME: assert error message
-# FIXME: test invalid method
 
 
 class TestPhonebook(FunctionalTestBase):
@@ -22,7 +21,7 @@ class TestPhonebook(FunctionalTestBase):
 
     def test_get_invalid_url_should_fail(self):
         # when
-        response = self.app.get('/phonebook/bogus/url', expect_errors=True)
+        response = self.app.get('/bogus/url', expect_errors=True)
         # then
         assert_that(response.status_int, is_(404))
 
@@ -269,5 +268,35 @@ class TestPhonebook(FunctionalTestBase):
         response = self.app.patch_json(url='/phonebook/1234/asdf',
                                        params={'name': 'David', 'phone': None, 'mobile': 5555},
                                        expect_errors=True)
+        # then
+        assert_that(response.status_int, is_(404))
+
+    def test_base_url_should_reject_put(self):
+        # given
+        entry = Entry(name='Charlie', phone='5678')
+        # when
+        response = self.app.put_json(url='/phonebook/', params=objToDict(entry), expect_errors=True)
+        # then
+        assert_that(response.status_int, is_(404))
+
+    def test_base_url_should_reject_patch(self):
+        # given
+        entry = Entry(name='Charlie', phone='5678')
+        # when
+        response = self.app.patch_json(url='/phonebook/', params=objToDict(entry), expect_errors=True)
+        # then
+        assert_that(response.status_int, is_(404))
+
+    def test_base_url_should_reject_delete(self):
+        # when
+        response = self.app.delete(url='/phonebook/', expect_errors=True)
+        # then
+        assert_that(response.status_int, is_(404))
+
+    def test_entry_should_reject_post(self):
+        # given
+        entry = Entry(name='Charlie', phone='5678')
+        # when
+        response = self.app.post_json(url='/phonebook/1234', params=objToDict(entry), expect_errors=True)
         # then
         assert_that(response.status_int, is_(404))
