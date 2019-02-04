@@ -77,7 +77,7 @@ class TestPhonebook(FunctionalTestBase):
         # when
         result = self.app.post_json(url='/phonebook/asdf', params=objToDict(entry), expect_errors=True)
         # then
-        assert_that(result.status_int, is_(404))
+        assert_that(result.status_int, is_(405))
 
     def test_get_entry_by_id_with_trailing_slash(self):
         # given
@@ -99,14 +99,14 @@ class TestPhonebook(FunctionalTestBase):
         assert_that(response.status_int, is_(200))
         assert_that(response.json, is_(objToDict(entry)))
 
-    def test_get_subresource_of_entry_should_send_404(self):
+    def test_get_subresource_of_entry_should_fail(self):
         # given
         entry = Entry('1234', name='Charlie')
         self.app.post_json(url='/phonebook/', params=objToDict(entry))
         # when
         response = self.app.get('/phonebook/1234/asdf', expect_errors=True)
         # then
-        assert_that(response.status_int, is_(404))
+        assert_that(response.status_int, is_(405))
 
     def test_get_should_return_404_if_no_entry_found(self):
         # when
@@ -266,7 +266,7 @@ class TestPhonebook(FunctionalTestBase):
                                        params={'name': 'David', 'phone': None, 'mobile': 5555},
                                        expect_errors=True)
         # then
-        assert_that(response.status_int, is_(400))
+        assert_that(response.status_int, is_(404))
 
     def test_patch_should_fail_when_id_in_url_and_body_mismatch(self):
         # given
@@ -294,7 +294,7 @@ class TestPhonebook(FunctionalTestBase):
         # when
         response = self.app.put_json(url='/phonebook/', params=objToDict(entry), expect_errors=True)
         # then
-        assert_that(response.status_int, is_(404))
+        assert_that(response.status_int, is_(405))
 
     def test_base_url_should_reject_patch(self):
         # given
@@ -302,13 +302,13 @@ class TestPhonebook(FunctionalTestBase):
         # when
         response = self.app.patch_json(url='/phonebook/', params=objToDict(entry), expect_errors=True)
         # then
-        assert_that(response.status_int, is_(404))
+        assert_that(response.status_int, is_(405))
 
     def test_base_url_should_reject_delete(self):
         # when
         response = self.app.delete(url='/phonebook/', expect_errors=True)
         # then
-        assert_that(response.status_int, is_(404))
+        assert_that(response.status_int, is_(405))
 
     def test_entry_should_reject_post(self):
         # given
@@ -316,4 +316,4 @@ class TestPhonebook(FunctionalTestBase):
         # when
         response = self.app.post_json(url='/phonebook/1234', params=objToDict(entry), expect_errors=True)
         # then
-        assert_that(response.status_int, is_(404))
+        assert_that(response.status_int, is_(405))

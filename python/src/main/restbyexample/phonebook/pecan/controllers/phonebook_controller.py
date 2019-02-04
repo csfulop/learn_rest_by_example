@@ -6,26 +6,21 @@ from pecan.rest import RestController
 from restbyexample.phonebook.db.adapter import PhonebookDbAdapter, Entry, PhonebookDbException
 
 
-# FIXME: add Entry controller to handle invalid methods better
-
-
 class PhonebookController(RestController):
 
     def __init__(self, db_adapter: PhonebookDbAdapter) -> None:
         super().__init__()
         self._db_adapter = db_adapter
 
+    @expose()
+    def _lookup(self, entry_id, *remainder):
+        if entry_id is not None:
+            return PhonebookEntryController(self._db_adapter, entry_id), remainder
+        abort(404)
+
     @expose(template='json')
     def get_all(self):
         return [objToDict(e) for e in self._db_adapter.list()]
-
-    @expose(template='json')
-    def get_one(self, id_: str):
-        result = self._db_adapter.get(id_)
-        if result is None:
-            pecan.response.status = 404
-        else:
-            return objToDict(result)
 
     @expose(template='json')
     def post(self):
@@ -36,15 +31,29 @@ class PhonebookController(RestController):
             abort(400, e.args[0])
         return objToDict(entry)
 
+
+class PhonebookEntryController(RestController):
+
+    def __init__(self, db_adapter: PhonebookDbAdapter, entry_id: str) -> None:
+        super().__init__()
+        self._db_adapter = db_adapter
+        self._entry_id = entry_id
+
     @expose(template='json')
-    def put(self, id_: str = None):
-        if not id_:
+    def get_all(self):
+        result = self._db_adapter.get(self._entry_id)
+        if result is None:
             abort(404)
+        else:
+            return objToDict(result)
+
+    @expose(template='json')
+    def put(self):
         modified_entry = request.json
         entry_id = modified_entry.pop('id', None)
         if not entry_id:
-            entry_id = id_
-        elif entry_id != id_:
+            entry_id = self._entry_id
+        elif entry_id != self._entry_id:
             abort(400, detail='Entry ID in URL and body mismatch')
         entry = Entry(entry_id, **modified_entry)
         if self._db_adapter.get(entry_id):  # FIXME: add exists to adapter
@@ -54,29 +63,25 @@ class PhonebookController(RestController):
         return objToDict(entry)
 
     @expose(template='json')
-    def patch(self, id_: str = None):
-        if not id_:
-            abort(404)
-        actual = objToDict(self._db_adapter.get(id_))
+    def patch(self):
+        actual = objToDict(self._db_adapter.get(self._entry_id))
         if actual is None:
-            abort(400, detail='Entry does not exists with ID: ' + id_)
+            abort(404, detail='Entry does not exists with ID: ' + self._entry_id)
         patch = request.json
-        if 'id' in patch and patch['id'] != id_:
+        if 'id' in patch and patch['id'] != self._entry_id:
             abort(400, detail='Entry ID in URL and body mismatch')
         result = json_merge_patch.merge(actual, patch)
         result.pop('id')
-        self._db_adapter.modify(Entry(id_, **result))
-        return objToDict(self._db_adapter.get(id_))
+        self._db_adapter.modify(Entry(self._entry_id, **result))
+        return objToDict(self._db_adapter.get(self._entry_id))
 
     @expose(template='json')
-    def delete(self, id_: str = None):
-        if not id_:
-            abort(404)
-        if self._db_adapter.get(id_):
-            self._db_adapter.remove(id_)
+    def delete(self):
+        try:
+            self._db_adapter.remove(self._entry_id)
             pecan.response.status = 204
-        else:
-            pecan.response.status = 404
+        except PhonebookDbException as e:
+            abort(404, e.args[0])
 
 
 def objToDict(obj):
