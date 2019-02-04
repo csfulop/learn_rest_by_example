@@ -37,10 +37,10 @@ class TestPhonebook(FunctionalTestBase):
         response = self.app.post_json('/phonebook/', params={'name': 'Alice', 'phone': '1234'})
         # then
         assert_that(response.status_int, is_(200))
-        id_ = response.json['id']
-        expected = Entry(id_, name='Alice', phone='1234')
+        entry_id = response.json['id']
+        expected = Entry(entry_id, name='Alice', phone='1234')
         assert_that(response.json, equal_to(objToDict(expected)))
-        get_result = self.app.get('/phonebook/' + id_).json
+        get_result = self.app.get('/phonebook/' + entry_id).json
         assert_that(get_result, equal_to(objToDict(expected)))
 
     def test_post_entry_should_save_entry(self):
