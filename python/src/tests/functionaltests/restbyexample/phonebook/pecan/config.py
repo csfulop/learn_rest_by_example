@@ -11,10 +11,7 @@ app = {
     'static_root': '%(confdir)s/../../../../../main/restbyexample/phonebook/pecan/public',
     'template_path': '%(confdir)s/../../../../../src/main/restbyexample/phonebook/pecan/templates',
     'debug': True,
-    'errors': {
-        '404': '/error/404',
-        '__force_dict__': True
-    }
+    'errors': {}
 }
 
 # Custom Configurations must be in Python dictionary format::

@@ -7,7 +7,6 @@ from restbyexample.phonebook.db.adapter import PhonebookDbAdapter, Entry, Phoneb
 
 
 class PhonebookController(RestController):
-
     def __init__(self, db_adapter: PhonebookDbAdapter) -> None:
         super().__init__()
         self._db_adapter = db_adapter
@@ -56,7 +55,7 @@ class PhonebookEntryController(RestController):
         elif entry_id != self._entry_id:
             abort(400, detail='Entry ID in URL and body mismatch')
         entry = Entry(entry_id, **modified_entry)
-        if self._db_adapter.get(entry_id):  # FIXME: add exists to adapter
+        if self._db_adapter.get(entry_id):  # TODO: add exists to adapter
             self._db_adapter.modify(entry)
         else:
             self._db_adapter.add(entry)
@@ -84,6 +83,7 @@ class PhonebookEntryController(RestController):
             abort(404, e.args[0])
 
 
+# FIXME: use pecan JSON serialization
 def objToDict(obj):
     """
     Convert Entry (or any other object) to dict, because object by default is not JSON serializable, but dict is.

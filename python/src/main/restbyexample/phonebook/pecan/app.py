@@ -1,5 +1,6 @@
 from pecan import make_app
 from restbyexample.phonebook.pecan import model
+from restbyexample.phonebook.pecan.controllers.json_error_hook import JsonErrorHook
 
 
 def setup_app(config):
@@ -10,5 +11,6 @@ def setup_app(config):
     return make_app(
         app_conf.pop('root'),
         logging=getattr(config, 'logging', {}),
+        hooks=[JsonErrorHook()],
         **app_conf
     )

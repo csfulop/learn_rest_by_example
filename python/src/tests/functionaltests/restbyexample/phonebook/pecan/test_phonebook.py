@@ -31,6 +31,7 @@ class TestPhonebook(FunctionalTestBase):
         response = self.app.get('/bogus/url', expect_errors=True)
         # then
         assert_that(response.status_int, is_(404))
+        assert_that(response.json, equal_to({'status': 404}))
 
     def test_post_entry_without_id_should_generate_random_id(self):
         # when
@@ -108,11 +109,12 @@ class TestPhonebook(FunctionalTestBase):
         # then
         assert_that(response.status_int, is_(405))
 
-    def test_get_should_return_404_if_no_entry_found(self):
+    def test_get_should_fail_if_no_entry_found(self):
         # when
         response = self.app.get('/phonebook/asdf/', expect_errors=True)
         # then
         assert_that(response.status_int, is_(404))
+        assert_that(response.json, equal_to({'status': 404}))
 
     def test_get_list_of_multiple_entries(self):
         # given
