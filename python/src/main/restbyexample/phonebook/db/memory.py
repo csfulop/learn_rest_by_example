@@ -32,7 +32,7 @@ class MemoryPhonebookDbAdapter(PhonebookDbAdapter):
         else:
             return None
 
-    def modify(self, entry: Entry):
+    def modify(self, entry: Entry) -> None:
         if not entry.id:
             raise PhonebookDbException('Can not modify Entry without ID')
         if entry.id not in self._phonebook:

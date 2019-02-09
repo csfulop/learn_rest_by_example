@@ -1,10 +1,13 @@
 from pecan import make_app
+
 from restbyexample.phonebook.pecan import model
 from restbyexample.phonebook.pecan.controllers.json_error_hook import JsonErrorHook
+from restbyexample.phonebook.pecan.json import register_jsonify
+
+register_jsonify()
 
 
 def setup_app(config):
-
     model.init_model()
     app_conf = dict(config.app)
 

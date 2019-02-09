@@ -3,7 +3,7 @@ from pecan.rest import RestController
 
 from restbyexample.phonebook.db.adapter import PhonebookDbAdapter, Entry, PhonebookDbException
 from restbyexample.phonebook.pecan.controllers.phonebook_entry_controller import PhonebookEntryController
-from restbyexample.phonebook.pecan.controllers.utils import objToDict
+from restbyexample.phonebook.pecan.utils import objToDict
 
 
 class PhonebookController(RestController):

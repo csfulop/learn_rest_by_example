@@ -1,4 +1,3 @@
-# FIXME: use pecan JSON serialization
 def objToDict(obj):
     """
     Convert Entry (or any other object) to dict, because object by default is not JSON serializable, but dict is.

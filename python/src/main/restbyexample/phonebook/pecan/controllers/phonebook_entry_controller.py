@@ -4,7 +4,7 @@ from pecan import expose, abort, request
 from pecan.rest import RestController
 
 from restbyexample.phonebook.db.adapter import PhonebookDbAdapter, Entry, PhonebookDbException
-from restbyexample.phonebook.pecan.controllers.utils import objToDict
+from restbyexample.phonebook.pecan.utils import objToDict
 
 
 class PhonebookEntryController(RestController):
@@ -20,7 +20,7 @@ class PhonebookEntryController(RestController):
         if result is None:
             abort(404)
         else:
-            return objToDict(result)
+            return result
 
     @expose(template='json')
     def put(self):
@@ -35,7 +35,7 @@ class PhonebookEntryController(RestController):
             self._db_adapter.modify(entry)
         else:
             self._db_adapter.add(entry)
-        return objToDict(entry)
+        return entry
 
     @expose(template='json')
     def patch(self):
@@ -48,7 +48,7 @@ class PhonebookEntryController(RestController):
         result = json_merge_patch.merge(actual, patch)
         result.pop('id')
         self._db_adapter.modify(Entry(self._entry_id, **result))
-        return objToDict(self._db_adapter.get(self._entry_id))
+        return self._db_adapter.get(self._entry_id)
 
     @expose(template='json')
     def delete(self):

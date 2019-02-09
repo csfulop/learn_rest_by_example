@@ -4,7 +4,7 @@ from hamcrest.core.core import is_
 
 from functionaltests.restbyexample.phonebook.pecan.functional_test_base import FunctionalTestBase
 from restbyexample.phonebook.db.adapter import Entry
-from restbyexample.phonebook.pecan.controllers.utils import objToDict
+from restbyexample.phonebook.pecan.utils import objToDict
 
 HTTP_404 = 'The resource could not be found.'
 HTTP_405 = 'The server could not comply with the request since it is either malformed or otherwise incorrect.'
