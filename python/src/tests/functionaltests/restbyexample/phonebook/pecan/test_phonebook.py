@@ -1,8 +1,8 @@
 from hamcrest import empty, has_length, has_item, equal_to
 from hamcrest.core import assert_that
 from hamcrest.core.core import is_
-from hamcrest.core.core.isequal import IsEqual
 
+from functionaltests.restbyexample.phonebook.matchers import json_equal_to_entry
 from functionaltests.restbyexample.phonebook.pecan.functional_test_base import FunctionalTestBase
 from restbyexample.phonebook.db.adapter import Entry
 from restbyexample.phonebook.pecan.utils import objToDict
@@ -333,12 +333,3 @@ class TestPhonebook(FunctionalTestBase):
         # then
         assert_that(response.status_int, is_(405))
         assert_that(response.json, equal_to({'status': 405, 'detail': HTTP_405}))
-
-
-class JsonEqualToEntry(IsEqual):
-    def __init__(self, entry: Entry) -> None:
-        super().__init__(objToDict(entry))
-
-
-def json_equal_to_entry(entry: Entry):
-    return JsonEqualToEntry(entry)
