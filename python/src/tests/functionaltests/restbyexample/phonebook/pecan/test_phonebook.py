@@ -1,6 +1,7 @@
 from hamcrest import empty, has_length, has_item, equal_to
 from hamcrest.core import assert_that
 from hamcrest.core.core import is_
+from hamcrest.core.core.isequal import IsEqual
 
 from functionaltests.restbyexample.phonebook.pecan.functional_test_base import FunctionalTestBase
 from restbyexample.phonebook.db.adapter import Entry
@@ -39,9 +40,9 @@ class TestPhonebook(FunctionalTestBase):
         assert_that(response.status_int, is_(200))
         entry_id = response.json['id']
         expected = Entry(entry_id, name='Alice', phone='1234')
-        assert_that(response.json, equal_to(objToDict(expected)))
+        assert_that(response.json, json_equal_to_entry(expected))
         get_result = self.app.get('/phonebook/' + entry_id).json
-        assert_that(get_result, equal_to(objToDict(expected)))
+        assert_that(get_result, json_equal_to_entry(expected))
 
     def test_post_entry_should_save_entry(self):
         # given
@@ -89,7 +90,7 @@ class TestPhonebook(FunctionalTestBase):
         response = self.app.get('/phonebook/1234/')
         # then
         assert_that(response.status_int, is_(200))
-        assert_that(response.json, is_(objToDict(entry)))
+        assert_that(response.json, json_equal_to_entry(entry))
 
     def test_get_entry_by_id(self):
         # given
@@ -99,7 +100,7 @@ class TestPhonebook(FunctionalTestBase):
         response = self.app.get('/phonebook/1234')
         # then
         assert_that(response.status_int, is_(200))
-        assert_that(response.json, is_(objToDict(entry)))
+        assert_that(response.json, json_equal_to_entry(entry))
 
     def test_get_subresource_of_entry_should_fail(self):
         # given
@@ -177,8 +178,8 @@ class TestPhonebook(FunctionalTestBase):
         response = self.app.put_json(url='/phonebook/1234', params=objToDict(entry2))
         # then
         assert_that(response.status_int, is_(200))
-        assert_that(response.json, equal_to(objToDict(entry2)))
-        assert_that(self.app.get(url='/phonebook/1234').json, equal_to(objToDict(entry2)))
+        assert_that(response.json, json_equal_to_entry(entry2))
+        assert_that(self.app.get(url='/phonebook/1234').json, json_equal_to_entry(entry2))
 
     def test_put_without_id(self):
         # given
@@ -190,8 +191,8 @@ class TestPhonebook(FunctionalTestBase):
         # then
         expected = Entry('1234', name='Bob', mobile='9876')
         assert_that(response.status_int, is_(200))
-        assert_that(response.json, equal_to(objToDict(expected)))
-        assert_that(self.app.get(url='/phonebook/1234').json, equal_to(objToDict(expected)))
+        assert_that(response.json, json_equal_to_entry(expected))
+        assert_that(self.app.get(url='/phonebook/1234').json, json_equal_to_entry(expected))
 
     def test_put_should_fail_when_id_in_url_and_body_mismatch(self):
         # given
@@ -212,8 +213,8 @@ class TestPhonebook(FunctionalTestBase):
         # then
         expected = Entry('1234', name='Charlie', phone='5678')
         assert_that(response.status_int, is_(200))
-        assert_that(response.json, equal_to(objToDict(expected)))
-        assert_that(self.app.get(url='/phonebook/1234').json, equal_to(objToDict(expected)))
+        assert_that(response.json, json_equal_to_entry(expected))
+        assert_that(self.app.get(url='/phonebook/1234').json, json_equal_to_entry(expected))
 
     def test_put_new_entry_id_in_url_and_body(self):
         # given
@@ -222,8 +223,8 @@ class TestPhonebook(FunctionalTestBase):
         response = self.app.put_json(url='/phonebook/1234', params=objToDict(entry))
         # then
         assert_that(response.status_int, is_(200))
-        assert_that(response.json, equal_to(objToDict(entry)))
-        assert_that(self.app.get(url='/phonebook/1234').json, equal_to(objToDict(entry)))
+        assert_that(response.json, json_equal_to_entry(entry))
+        assert_that(self.app.get(url='/phonebook/1234').json, json_equal_to_entry(entry))
 
     def test_put_with_trailing_slash(self):
         # given
@@ -232,8 +233,8 @@ class TestPhonebook(FunctionalTestBase):
         response = self.app.put_json(url='/phonebook/1234/', params=objToDict(entry))
         # then
         assert_that(response.status_int, is_(200))
-        assert_that(response.json, equal_to(objToDict(entry)))
-        assert_that(self.app.get(url='/phonebook/1234').json, equal_to(objToDict(entry)))
+        assert_that(response.json, json_equal_to_entry(entry))
+        assert_that(self.app.get(url='/phonebook/1234').json, json_equal_to_entry(entry))
 
     def test_put_to_subresource_should_fail(self):
         # given
@@ -253,8 +254,8 @@ class TestPhonebook(FunctionalTestBase):
         # then
         expected = Entry('1234', name='David', mobile=5555)
         assert_that(response.status_int, is_(200))
-        assert_that(response.json, equal_to(objToDict(expected)))
-        assert_that(self.app.get(url='/phonebook/1234').json, equal_to(objToDict(expected)))
+        assert_that(response.json, json_equal_to_entry(expected))
+        assert_that(self.app.get(url='/phonebook/1234').json, json_equal_to_entry(expected))
 
     def test_patch_with_trailing_slash(self):
         # given
@@ -265,8 +266,8 @@ class TestPhonebook(FunctionalTestBase):
         # then
         expected = Entry('1234', name='David', mobile=5555)
         assert_that(response.status_int, is_(200))
-        assert_that(response.json, equal_to(objToDict(expected)))
-        assert_that(self.app.get(url='/phonebook/1234').json, equal_to(objToDict(expected)))
+        assert_that(response.json, json_equal_to_entry(expected))
+        assert_that(self.app.get(url='/phonebook/1234').json, json_equal_to_entry(expected))
 
     def test_patch_non_existing_entry_should_fail(self):
         # when
@@ -332,3 +333,12 @@ class TestPhonebook(FunctionalTestBase):
         # then
         assert_that(response.status_int, is_(405))
         assert_that(response.json, equal_to({'status': 405, 'detail': HTTP_405}))
+
+
+class JsonEqualToEntry(IsEqual):
+    def __init__(self, entry: Entry) -> None:
+        super().__init__(objToDict(entry))
+
+
+def json_equal_to_entry(entry: Entry):
+    return JsonEqualToEntry(entry)
