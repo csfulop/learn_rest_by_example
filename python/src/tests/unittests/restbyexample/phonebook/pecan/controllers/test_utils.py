@@ -4,7 +4,7 @@ from hamcrest.core import assert_that
 from hamcrest.core.core import is_
 
 from restbyexample.phonebook.db.adapter import Entry
-from restbyexample.phonebook.pecan.controllers.phonebook_controller import objToDict
+from restbyexample.phonebook.pecan.controllers.utils import objToDict
 
 
 class TestObjToDict(TestCase):
