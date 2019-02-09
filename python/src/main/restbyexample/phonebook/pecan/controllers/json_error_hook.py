@@ -6,7 +6,7 @@ from pecan.hooks import PecanHook
 
 class JsonErrorHook(PecanHook):
     def on_error(self, state, exc):
-        response = {'status': state.response.status_int}
+        response = {'status': state.response.status_int, 'detail': str(exc)}
         return webob.Response(
             body=json.dumps(response),
             status=state.response.status_int,

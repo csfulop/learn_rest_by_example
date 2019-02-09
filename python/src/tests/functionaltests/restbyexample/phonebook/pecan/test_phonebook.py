@@ -6,9 +6,8 @@ from functionaltests.restbyexample.phonebook.pecan.functional_test_base import F
 from restbyexample.phonebook.db.adapter import Entry
 from restbyexample.phonebook.pecan.controllers.phonebook_controller import objToDict
 
-
-# FIXME: should return json error content
-# FIXME: assert error message
+HTTP_404 = 'The resource could not be found.'
+HTTP_405 = 'The server could not comply with the request since it is either malformed or otherwise incorrect.'
 
 
 class TestPhonebook(FunctionalTestBase):
@@ -31,7 +30,7 @@ class TestPhonebook(FunctionalTestBase):
         response = self.app.get('/bogus/url', expect_errors=True)
         # then
         assert_that(response.status_int, is_(404))
-        assert_that(response.json, equal_to({'status': 404}))
+        assert_that(response.json, equal_to({'status': 404, 'detail': HTTP_404}))
 
     def test_post_entry_without_id_should_generate_random_id(self):
         # when
@@ -71,14 +70,16 @@ class TestPhonebook(FunctionalTestBase):
         response = self.app.post_json(url='/phonebook/', params=objToDict(entry2), expect_errors=True)
         # then
         assert_that(response.status_int, is_(400))
+        assert_that(response.json, equal_to({'status': 400, 'detail': 'ID already exists: 1234'}))
 
     def test_post_to_subresource_should_fail(self):
         # given
         entry = Entry('1234')
         # when
-        result = self.app.post_json(url='/phonebook/asdf', params=objToDict(entry), expect_errors=True)
+        response = self.app.post_json(url='/phonebook/asdf', params=objToDict(entry), expect_errors=True)
         # then
-        assert_that(result.status_int, is_(405))
+        assert_that(response.status_int, is_(405))
+        assert_that(response.json, equal_to({'status': 405, 'detail': HTTP_405}))
 
     def test_get_entry_by_id_with_trailing_slash(self):
         # given
@@ -108,13 +109,14 @@ class TestPhonebook(FunctionalTestBase):
         response = self.app.get('/phonebook/1234/asdf', expect_errors=True)
         # then
         assert_that(response.status_int, is_(405))
+        assert_that(response.json, equal_to({'status': 405, 'detail': HTTP_405}))
 
     def test_get_should_fail_if_no_entry_found(self):
         # when
         response = self.app.get('/phonebook/asdf/', expect_errors=True)
         # then
         assert_that(response.status_int, is_(404))
-        assert_that(response.json, equal_to({'status': 404}))
+        assert_that(response.json, equal_to({'status': 404, 'detail': HTTP_404}))
 
     def test_get_list_of_multiple_entries(self):
         # given
@@ -154,6 +156,7 @@ class TestPhonebook(FunctionalTestBase):
         response = self.app.delete(url='/phonebook/1234', expect_errors=True)
         # then
         assert_that(response.status_int, is_(404))
+        assert_that(response.json, equal_to({'status': 404, 'detail': 'Entry with the given ID does not exists: 1234'}))
 
     def test_delete_subresource_should_fail(self):
         # given
@@ -163,6 +166,7 @@ class TestPhonebook(FunctionalTestBase):
         response = self.app.delete(url='/phonebook/1234/asdf', expect_errors=True)
         # then
         assert_that(response.status_int, is_(404))
+        assert_that(response.json, equal_to({'status': 404, 'detail': HTTP_404}))
 
     def test_put_should_modify_whole_entry(self):
         # given
@@ -198,6 +202,7 @@ class TestPhonebook(FunctionalTestBase):
         response = self.app.put_json(url='/phonebook/1234', params=objToDict(entry2), expect_errors=True)
         # then
         assert_that(response.status_int, is_(400))
+        assert_that(response.json, equal_to({'status': 400, 'detail': 'Entry ID in URL and body mismatch'}))
 
     def test_put_new_entry_id_only_in_url(self):
         # given
@@ -237,6 +242,7 @@ class TestPhonebook(FunctionalTestBase):
         response = self.app.put_json(url='/phonebook/1234/asdf', params=objToDict(entry), expect_errors=True)
         # then
         assert_that(response.status_int, is_(404))
+        assert_that(response.json, equal_to({'status': 404, 'detail': HTTP_404}))
 
     def test_patch(self):
         # given
@@ -269,6 +275,7 @@ class TestPhonebook(FunctionalTestBase):
                                        expect_errors=True)
         # then
         assert_that(response.status_int, is_(404))
+        assert_that(response.json, equal_to({'status': 404, 'detail': 'Entry does not exists with ID: 1234'}))
 
     def test_patch_should_fail_when_id_in_url_and_body_mismatch(self):
         # given
@@ -278,6 +285,7 @@ class TestPhonebook(FunctionalTestBase):
         response = self.app.patch_json(url='/phonebook/1234', params={'id': '456', 'name': 'David'}, expect_errors=True)
         # then
         assert_that(response.status_int, is_(400))
+        assert_that(response.json, equal_to({'status': 400, 'detail': 'Entry ID in URL and body mismatch'}))
 
     def test_patch_to_subresource_should_fail(self):
         # given
@@ -289,6 +297,7 @@ class TestPhonebook(FunctionalTestBase):
                                        expect_errors=True)
         # then
         assert_that(response.status_int, is_(404))
+        assert_that(response.json, equal_to({'status': 404, 'detail': HTTP_404}))
 
     def test_base_url_should_reject_put(self):
         # given
@@ -297,6 +306,7 @@ class TestPhonebook(FunctionalTestBase):
         response = self.app.put_json(url='/phonebook/', params=objToDict(entry), expect_errors=True)
         # then
         assert_that(response.status_int, is_(405))
+        assert_that(response.json, equal_to({'status': 405, 'detail': HTTP_405}))
 
     def test_base_url_should_reject_patch(self):
         # given
@@ -305,12 +315,14 @@ class TestPhonebook(FunctionalTestBase):
         response = self.app.patch_json(url='/phonebook/', params=objToDict(entry), expect_errors=True)
         # then
         assert_that(response.status_int, is_(405))
+        assert_that(response.json, equal_to({'status': 405, 'detail': HTTP_405}))
 
     def test_base_url_should_reject_delete(self):
         # when
         response = self.app.delete(url='/phonebook/', expect_errors=True)
         # then
         assert_that(response.status_int, is_(405))
+        assert_that(response.json, equal_to({'status': 405, 'detail': HTTP_405}))
 
     def test_entry_should_reject_post(self):
         # given
@@ -319,3 +331,4 @@ class TestPhonebook(FunctionalTestBase):
         response = self.app.post_json(url='/phonebook/1234', params=objToDict(entry), expect_errors=True)
         # then
         assert_that(response.status_int, is_(405))
+        assert_that(response.json, equal_to({'status': 405, 'detail': HTTP_405}))
