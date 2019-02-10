@@ -8,9 +8,8 @@ server = {
 app = {
     'root': 'restbyexample.phonebook.pecan.controllers.root.RootController',
     'modules': ['restbyexample.phonebook.pecan'],
-    'static_root': '%(confdir)s/public',
     'template_path': '%(confdir)s/templates',
-    'debug': True,
+    'debug': False,
     'errors': {}
 }
 
