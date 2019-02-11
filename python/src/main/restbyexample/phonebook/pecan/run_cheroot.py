@@ -8,6 +8,7 @@ phonebook_wsgi_app = deploy(os.path.join(os.path.dirname(__file__), 'config.py')
 server = wsgi.Server(('0.0.0.0', 8080), phonebook_wsgi_app)
 
 try:
+    print("Starting server...")
     server.start()
 except KeyboardInterrupt:
     print("Terminating server...")
