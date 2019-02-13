@@ -13,9 +13,7 @@ class PhonebookController(RestController):
 
     @expose()
     def _lookup(self, entry_id, *remainder):
-        if entry_id is not None:
-            return PhonebookEntryController(self._db_adapter, entry_id), remainder
-        abort(404)
+        return PhonebookEntryController(self._db_adapter, entry_id), remainder
 
     @expose(template='json')
     def get_all(self):
