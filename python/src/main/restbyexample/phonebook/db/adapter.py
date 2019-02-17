@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Collection
+from typing import Optional, List
 
 
 class Entry:
@@ -13,6 +13,10 @@ class Entry:
 
 
 class PhonebookDbAdapter(ABC):
+    """
+    Abstract Adapter class to access some Database.
+    It should hide every Database related stuff.
+    """
 
     @abstractmethod
     def size(self) -> int:
@@ -23,11 +27,11 @@ class PhonebookDbAdapter(ABC):
         pass
 
     @abstractmethod
-    def remove(self, id) -> None:
+    def remove(self, id: str) -> None:
         pass
 
     @abstractmethod
-    def get(self, id) -> Optional[Entry]:
+    def get(self, id: str) -> Optional[Entry]:
         pass
 
     @abstractmethod
@@ -35,7 +39,7 @@ class PhonebookDbAdapter(ABC):
         pass
 
     @abstractmethod
-    def list(self) -> Collection[Entry]:
+    def list(self) -> List[Entry]:
         pass
 
 

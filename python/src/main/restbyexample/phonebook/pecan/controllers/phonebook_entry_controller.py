@@ -8,6 +8,9 @@ from restbyexample.phonebook.pecan.utils import objToDict
 
 
 class PhonebookEntryController(RestController):
+    """
+    Pecan controller object to handle requests for a given Phonebook Entry.
+    """
 
     def __init__(self, db_adapter: PhonebookDbAdapter, entry_id: str) -> None:
         super().__init__()
@@ -15,7 +18,11 @@ class PhonebookEntryController(RestController):
         self._entry_id = entry_id
 
     @expose(template='json')
-    def get_all(self):
+    def get_all(self) -> Entry:
+        """
+        Query a Phonebook Entry
+        :return: the Phonebook Entry
+        """
         result = self._db_adapter.get(self._entry_id)
         if result is None:
             abort(404)
@@ -23,7 +30,12 @@ class PhonebookEntryController(RestController):
             return result
 
     @expose(template='json')
-    def put(self):
+    def put(self) -> Entry:
+        """
+        Modify a Phonebook Entry.
+        The entire content of the Entry will be replaced with the JSON request body.
+        :return: the modified Phonebook Entry
+        """
         modified_entry = request.json
         entry_id = modified_entry.pop('id', None)
         if not entry_id:
@@ -38,7 +50,12 @@ class PhonebookEntryController(RestController):
         return entry
 
     @expose(template='json')
-    def patch(self):
+    def patch(self) -> Entry:
+        """
+        Modify a Phonebook Entry.
+        The exising content of the Entry will patched with the JSON request body according to RFC7386 https://tools.ietf.org/html/rfc7386
+        :return: the modified Phonebook Entry
+        """
         actual = objToDict(self._db_adapter.get(self._entry_id))
         if actual is None:
             abort(404, detail='Entry does not exists with ID: ' + self._entry_id)
@@ -51,7 +68,10 @@ class PhonebookEntryController(RestController):
         return self._db_adapter.get(self._entry_id)
 
     @expose(template='json')
-    def delete(self):
+    def delete(self) -> None:
+        """
+        Delete a Phonebook Entry.
+        """
         try:
             self._db_adapter.remove(self._entry_id)
             pecan.response.status = 204
