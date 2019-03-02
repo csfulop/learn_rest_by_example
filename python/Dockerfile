@@ -5,13 +5,10 @@ WORKDIR /usr/src/app
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
-
-ENV PBR_VERSION 1.0
-
-RUN python setup.py install
+COPY .tox/dist/phonebook_pecan-*.zip .
+RUN pip install --no-cache-dir phonebook_pecan-*.zip
 
 EXPOSE 8080
 
-CMD [ "python", "./src/main/restbyexample/phonebook/pecan/run_cheroot.py" ]
+CMD [ "python", "/usr/local/lib/python3.7/site-packages/restbyexample/phonebook/pecan/run_cheroot.py" ]
 
