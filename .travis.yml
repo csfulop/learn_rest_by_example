@@ -18,5 +18,5 @@ script:
   - tox
   - docker build -t csfulop/lbe-rest-pecan .
   - docker run --rm -p 8080:8080 -d --name lbe-rest-pecan csfulop/lbe-rest-pecan
-  - timeout 10 bash -c "while ! curl /dev/null http://localhost:8080/; do sleep 1; printf .; done"
+  - timeout 10 bash -c "while ! curl http://localhost:8080/; do sleep 1; printf .; done"
   - curl http://localhost:8080/phonebook/
