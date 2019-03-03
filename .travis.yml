@@ -1,5 +1,8 @@
 language: python
 
+services:
+  - docker
+
 matrix:
   include:
     - python: 3.7
@@ -13,3 +16,4 @@ install:
   - pip install tox
 script:
   - tox
+  - docker build -t csfulop/lbe-rest-pecan python/
