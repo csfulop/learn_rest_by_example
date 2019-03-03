@@ -17,3 +17,5 @@ install:
 script:
   - tox
   - docker build -t csfulop/lbe-rest-pecan .
+  - docker run --rm -p 8080:8080 -d --name lbe-rest-pecan csfulop/lbe-rest-pecan
+  - curl http://localhost:8080/phonebook/
