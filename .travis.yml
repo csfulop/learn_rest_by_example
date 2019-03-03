@@ -16,4 +16,4 @@ install:
   - pip install tox
 script:
   - tox
-  - docker build -t csfulop/lbe-rest-pecan python/
+  - docker build -t csfulop/lbe-rest-pecan .
