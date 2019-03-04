@@ -1,14 +1,10 @@
 language: python
+sudo: required
+dist: xenial
+python: "3.7"
 
 services:
   - docker
-
-matrix:
-  include:
-    - python: 3.7
-      dist: xenial
-      sudo: true
-      env: TOXENV=py37
 
 before_script:
   - cd python
@@ -19,5 +15,4 @@ script:
   - docker build -t csfulop/lbe-rest-pecan .
   - docker run --rm -p 8080:8080 -d --name lbe-rest-pecan csfulop/lbe-rest-pecan
   - timeout 10 bash -c "while ! curl http://localhost:8080/; do sleep 1; printf .; done"
-  - curl -X POST --data '{"name":"csfulop"}' http://localhost:8080/phonebook | jq .
-  - curl http://localhost:8080/phonebook/ | jq .
+  - tox -e blackbox
