@@ -6,11 +6,12 @@ Learn REST by example
 ---------------------
 
 Simple phonebook app to learn about RESTful app development and a lot of related technologies
-(some of them are quite general and not RESTful related, but still are needed and are useful knowledge) :
+(some of them are quite general and not RESTful related, but still are needed and are useful knowledge):
 
 * how to develop basic RESTful API with Python 3 / Pecan
 * how to build python projects: setup.py / PBR / tox / py.test
 * how to setup CI for the project: GitHub / Travis-CI / codecov / ...
+* how to dockerize the app and how to test the dockerized app
 
 And the learning possibilites are almost endless. You can tewak the project into many different directions:
 
