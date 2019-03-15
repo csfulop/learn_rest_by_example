@@ -12,7 +12,9 @@ install:
   - pip install tox
 script:
   - tox
-  - docker build -t csfulop/lbe-rest-pecan .
-  - docker run --rm -p 8080:8080 -d --name lbe-rest-pecan csfulop/lbe-rest-pecan
+  - docker build -t csfulop/learn_rest_by_example .
+  - docker run --rm -p 8080:8080 -d --name learn_rest_by_example csfulop/learn_rest_by_example
   - timeout 10 bash -c "while ! curl http://localhost:8080/; do sleep 1; printf .; done"
   - tox -e blackbox
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - docker push csfulop/learn_rest_by_example
