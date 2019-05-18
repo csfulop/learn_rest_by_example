@@ -9,3 +9,4 @@ ChangeLog
 __pycache__
 .coverage
 coverage.xml
+*.pyc
