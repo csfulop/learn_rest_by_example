@@ -10,7 +10,6 @@ from restbyexample.phonebook.pecan.run_cheroot import run, main
 
 
 class TestRunCheroot(TestCase):
-    @skip
     def test_run_cheroot(self):
         # given
         self.addCleanup(main.stop)
